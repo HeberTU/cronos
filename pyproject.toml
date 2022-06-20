@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "cronos"
+version = "0.1.0"
+description = "Cronos is a machine learning logistic system to optimize stock allocation to a customer’s orders."
+authors = ["Heber Trujillo <heber.trj.urt@gmail.com>"]
+license = "GNU General Public License v3.0"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
