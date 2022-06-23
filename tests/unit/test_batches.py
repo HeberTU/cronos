@@ -11,6 +11,7 @@ from typing import Callable
 import pytest
 
 from corelib.allocation.domain.model import Batch, OrderLine, allocate
+from corelib.exceptions import OutOfStock
 
 today = date.today()
 tomorrow = today + timedelta(days=1)
@@ -115,3 +116,12 @@ def test_returns_allocated_batch_ref():
     allocation = allocate(line=line, batches=[in_stck_batch, shipment_batch])
 
     assert allocation == in_stck_batch.reference
+
+
+def test_raises_out_of_stock_exception_if_cannot_allocate():
+    """Test if we get out of stock when no batch can allocate line."""
+    batch = Batch("batch1", "SMALL-DESK", 10, eta=today)
+    allocate(line=OrderLine("order1", "SMALL-DESK", 10), batches=[batch])
+
+    with pytest.raises(OutOfStock, match="SMALL-DESK"):
+        allocate(line=OrderLine("order2", "SMALL-DESK", 11), batches=[batch])

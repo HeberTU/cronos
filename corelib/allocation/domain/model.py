@@ -11,6 +11,8 @@ from dataclasses import dataclass
 from datetime import date
 from typing import List, NewType, Optional
 
+from corelib.exceptions import OutOfStock
+
 OrderId = NewType("OrderId", str)
 Quantity = NewType("Quantity", int)
 Sku = NewType("Quantity", int)
@@ -122,7 +124,11 @@ def allocate(line: OrderLine, batches: List[Batch]) -> str:
             Reference of the batch in which the line was allocated.
 
     """
-    batch = next(b for b in sorted(batches) if b.can_allocate(line))
+    try:
+        batch = next(b for b in sorted(batches) if b.can_allocate(line))
+
+    except StopIteration:
+        raise OutOfStock(f"Out of stock for sku: {line.sku}")
 
     batch.allocate(line)
 
