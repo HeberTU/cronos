@@ -10,6 +10,8 @@ from typing import Callable
 
 import pytest
 
+from corelib.allocation.domain.model import Batch, OrderLine, allocate
+
 today = date.today()
 tomorrow = today + timedelta(days=1)
 later = tomorrow + timedelta(days=10)
@@ -77,11 +79,39 @@ def test_allocation_is_idempotent(batch_line: Callable):
     assert batch.available_quantity == 18
 
 
-def test_prefers_warehouse_batches_to_shipments():
-    """Test to do."""
-    pytest.fail("todo")
+def test_prefers_current_stock_batches_to_shipments():
+    """Test allocate function will assing order line to stock."""
+    in_stck_batch = Batch("in-stock-batch", "RETRO_CLOCK", 100, eta=None)
+    shipment_batch = Batch("shipment", "RETRO_CLOCK", 100, eta=tomorrow)
+    line = OrderLine("oref", "RETRO_CLOCK", 10)
+
+    allocate(line=line, batches=[in_stck_batch, shipment_batch])
+
+    assert in_stck_batch.available_quantity == 90
+    assert shipment_batch.available_quantity == 100
 
 
 def test_prefers_earlier_batches():
-    """Test to do."""
-    pytest.fail("todo")
+    """Test allocate func will prefer allocate to earliest batche."""
+    earliest = Batch("speedy-batch", "MINIMAL-TABLE", 100, eta=today)
+    medium = Batch("normal-batch", "MINIMAL-TABLE", 100, eta=tomorrow)
+    latest = Batch("slow-batch", "MINIMAL-TABLE", 100, eta=later)
+
+    line = OrderLine("oref", "MINIMAL-TABLE", 10)
+
+    allocate(line=line, batches=[earliest, medium, latest])
+
+    assert earliest.available_quantity == 90
+    assert medium.available_quantity == 100
+    assert latest.available_quantity == 100
+
+
+def test_returns_allocated_batch_ref():
+    """Test allocate func will return the batch reference."""
+    in_stck_batch = Batch("in-stock-batch", "RETRO_CLOCK", 100, eta=None)
+    shipment_batch = Batch("shipment", "RETRO_CLOCK", 100, eta=tomorrow)
+    line = OrderLine("oref", "RETRO_CLOCK", 10)
+
+    allocation = allocate(line=line, batches=[in_stck_batch, shipment_batch])
+
+    assert allocation == in_stck_batch.reference

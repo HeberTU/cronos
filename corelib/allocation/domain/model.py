@@ -5,10 +5,11 @@ Created on: 20/6/22
 @author: Heber Trujillo <heber.trj.urt@gmail.com>
 Licence,
 """
+from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
-from typing import NewType, Optional
+from typing import List, NewType, Optional
 
 OrderId = NewType("OrderId", str)
 Quantity = NewType("Quantity", int)
@@ -99,3 +100,30 @@ class Batch:
             True if customer order line can be allocated to batch.
         """
         return self.sku == line.sku and line.qty <= self.available_quantity
+
+    def __gt__(self, other: Batch) -> bool:
+        """Greater than operator use ETAs."""
+        if self.eta is None:
+            return False
+        if other.eta is None:
+            return True
+        return self.eta > other.eta
+
+
+def allocate(line: OrderLine, batches: List[Batch]) -> str:
+    """Allocate order line to the earliest Batch.
+
+    Args:
+        line: Order line.
+        batches: List of order batches
+
+    Returns:
+        batch_reference:
+            Reference of the batch in which the line was allocated.
+
+    """
+    batch = next(b for b in sorted(batches) if b.can_allocate(line))
+
+    batch.allocate(line)
+
+    return batch.reference
