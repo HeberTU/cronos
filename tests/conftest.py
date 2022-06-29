@@ -9,7 +9,7 @@ from datetime import date
 from typing import Callable, Tuple
 
 import pytest
-from _pytest.fixtures import FixtureRequest
+from _pytest.fixtures import FixtureRequest, FixtureFunction
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
@@ -58,7 +58,7 @@ def batch_line(request: FixtureRequest) -> Tuple[Batch, OrderLine]:
     return make_batch_and_line(*request.param)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def in_memory_db() -> Engine:
     """Create an in memory db to test."""
     engine = create_engine(url="sqlite:///:memory:")
@@ -66,8 +66,8 @@ def in_memory_db() -> Engine:
     return engine
 
 
-@pytest.fixture
-def session(in_memory_db: Callable) -> Session:
+@pytest.fixture(scope="session")
+def session(in_memory_db: Engine) -> Session:
     """Create a session bound to in memory database."""
     start_mappers()
     yield sessionmaker(bind=in_memory_db)()
