@@ -12,6 +12,7 @@ black = "^22.3.0"
 pydocstyle = "^6.1.1"
 flake8 = "^4.0.1"
 pytest = "^7.1.2"
+SQLAlchemy = "^1.4.39"
 
 [tool.poetry.dev-dependencies]
 
@@ -24,3 +25,4 @@ line-length = 79
 
 [tool.isort]
 profile = "black"
+force_grid_wrap = 2

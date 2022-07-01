@@ -9,7 +9,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
-from typing import List, NewType, Optional
+from typing import (
+    List,
+    NewType,
+    Optional,
+)
 
 from corelib.exceptions import OutOfStock
 
@@ -19,7 +23,7 @@ Sku = NewType("Quantity", int)
 Reference = NewType("Reference", str)
 
 
-@dataclass(frozen=True)
+@dataclass(unsafe_hash=True)
 class OrderLine:
     """Represent an order line within a Customer order."""
 
@@ -110,6 +114,16 @@ class Batch:
         if other.eta is None:
             return True
         return self.eta > other.eta
+
+    def __repr__(self):
+        """Batch representation."""
+        return f"<Batch {self.reference}>"
+
+    def __eq__(self, other: Batch):
+        """Two batches are equal if they have the same reference."""
+        if not isinstance(other, Batch):
+            return False
+        return other.reference == self.reference
 
 
 def allocate(line: OrderLine, batches: List[Batch]) -> str:
