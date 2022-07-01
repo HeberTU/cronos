@@ -6,16 +6,22 @@ Created on: 20/6/22
 Licence,
 """
 from datetime import date
-from typing import Callable, Tuple
+from typing import Tuple
 
 import pytest
 from _pytest.fixtures import FixtureRequest
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
-from sqlalchemy.orm import clear_mappers, sessionmaker
+from sqlalchemy.orm import (
+    clear_mappers,
+    sessionmaker,
+)
 from sqlalchemy.orm.session import Session
 
-from corelib.allocation.adapters.orm import metadata, start_mappers
+from corelib.allocation.adapters.orm import (
+    metadata,
+    start_mappers,
+)
 from corelib.allocation.domain.model import (
     Batch,
     OrderId,
@@ -58,7 +64,7 @@ def batch_line(request: FixtureRequest) -> Tuple[Batch, OrderLine]:
     return make_batch_and_line(*request.param)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def in_memory_db() -> Engine:
     """Create an in memory db to test."""
     engine = create_engine(url="sqlite:///:memory:")
@@ -67,8 +73,8 @@ def in_memory_db() -> Engine:
 
 
 @pytest.fixture
-def session(in_memory_db: Callable) -> Session:
+def session(in_memory_db: Engine) -> Session:
     """Create a session bound to in memory database."""
     start_mappers()
-    yield sessionmaker(bind=in_memory_db)()
+    yield sessionmaker(bind=in_memory_db, expire_on_commit=False)()
     clear_mappers()
