@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Core package.
+"""Library for synchronizing two file directories.
 
-Created on: 20/6/22
+Created on: 1/7/22
 @author: Heber Trujillo <heber.trj.urt@gmail.com>
 Licence,
 """
-
-__version__ = "0.4.0"
