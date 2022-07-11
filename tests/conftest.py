@@ -6,6 +6,7 @@ Created on: 20/6/22
 Licence,
 """
 from datetime import date
+from pathlib import Path
 from typing import Tuple
 
 import pytest
@@ -78,3 +79,22 @@ def session(in_memory_db: Engine) -> Session:
     start_mappers()
     yield sessionmaker(bind=in_memory_db, expire_on_commit=False)()
     clear_mappers()
+
+
+@pytest.fixture
+def files() -> Tuple[Path, Path, Path]:
+    """Create a temporary file and return its path."""
+    files_dict = {
+        "./test_1.txt": "Cronos test file",
+        "./test_1_identical.txt": "Cronos test file",
+        "./test_2.txt": "Cronos test file.",
+    }
+
+    file_paths = []
+    for name, content in files_dict.items():
+        with open(name, "w") as file:
+            file.write(content)
+
+        file_paths.append(Path(name))
+
+    return tuple(file_paths)
