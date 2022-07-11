@@ -6,4 +6,4 @@ Created on: 20/6/22
 Licence,
 """
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
