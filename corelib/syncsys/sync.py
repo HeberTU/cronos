@@ -9,6 +9,7 @@ import hashlib
 import os
 import shutil
 from pathlib import Path
+from typing import Dict
 
 BLOCKSIZE = 65536
 
@@ -29,6 +30,22 @@ def hash_file(path: Path) -> str:
             hasher.update(buf)
             buf = file.read(BLOCKSIZE)
     return hasher.hexdigest()
+
+
+def read_paths_and_hashes(root: Path) -> Dict[str, str]:
+    """Create a hash mapping for all the files in the root path.
+
+    Args:
+        root: root path directory.
+
+    Returns:
+        hashes: hash mapping of files at root derectory.
+    """
+    hashes = {}
+    for folder, _, files in os.walk(root):
+        for file in files:
+            hashes[hash_file(Path(folder) / file)] = file
+    return hashes
 
 
 def sync(source: Path, dest: Path) -> None:
