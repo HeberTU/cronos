@@ -104,7 +104,7 @@ def determine_actions(
 
     for sha, filename in dest_hashes.items():
         if sha not in source_hashes:
-            yield Action.DELETE, dest_folder / filename, None
+            yield Action.DELETE, Path(dest_folder) / filename, None
 
 
 def sync(source: Path, dest: Path) -> None:
