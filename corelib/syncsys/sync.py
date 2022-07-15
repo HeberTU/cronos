@@ -15,6 +15,7 @@ from enum import (
 from pathlib import Path
 from typing import (
     Dict,
+    Optional,
     Tuple,
 )
 
@@ -68,7 +69,7 @@ def determine_actions(
     dest_hashes: Dict[str, str],
     source_folder: Path,
     dest_folder: Path,
-) -> Tuple[str, Path, Path]:
+) -> Tuple[str, Path, Optional[Path]]:
     """Yield the set of file system actions according to synchronizing logic.
 
     The synchronizing logic has three possible actions:
@@ -103,7 +104,7 @@ def determine_actions(
 
     for sha, filename in dest_hashes.items():
         if sha not in source_hashes:
-            yield Action.DELETE, dest_folder / filename
+            yield Action.DELETE, dest_folder / filename, None
 
 
 def sync(source: Path, dest: Path) -> None:
@@ -116,32 +117,19 @@ def sync(source: Path, dest: Path) -> None:
     Returns:
         None.
     """
-    # Walk the source folder and build a dict of filenames and their hashes
-    source_hashes = {}
-    for folder, _, files in os.walk(source):
-        for fn in files:
-            source_hashes[hash_file(Path(folder) / fn)] = fn
+    actions_config = {
+        Action.COPY: shutil.copyfile,
+        Action.MOVE: shutil.move,
+        Action.DELETE: lambda file, _: os.remove(dest),
+    }
 
-    seen = set()  # Keep track of the files we've found in the target
+    source_hashes = read_paths_and_hashes(source)
+    dest_hashes = read_paths_and_hashes(dest)
 
-    # Walk the target folder and get the filenames and hashes
-    for folder, _, files in os.walk(dest):
-        for fn in files:
-            dest_path = Path(folder) / fn
-            dest_hash = hash_file(dest_path)
-            seen.add(dest_hash)
+    actions = determine_actions(source_hashes, dest_hashes, source, dest)
 
-            # if there's a file in target that's not in source, delete it
-            if dest_hash not in source_hashes:
-                dest_path.remove()
-
-            # if there's a file in target that has a different path in source,
-            # move it to the correct path
-            elif dest_hash in source_hashes and fn != source_hashes[dest_hash]:
-                shutil.move(dest_path, Path(folder) / source_hashes[dest_hash])
-
-    # for every file that appears in source but not target, copy the file to
-    # the target
-    for src_hash, fn in source_hashes.items():
-        if src_hash not in seen:
-            shutil.copy(Path(source) / fn, Path(dest) / fn)
+    for action, *paths in actions:
+        operation = actions_config.get(action, None)
+        if operation is None:
+            raise NotImplementedError(f"Invalid file system action: {action}")
+        operation(*paths)
