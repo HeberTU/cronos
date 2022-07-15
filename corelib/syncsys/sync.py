@@ -120,7 +120,7 @@ def sync(source: Path, dest: Path) -> None:
     actions_config = {
         Action.COPY: shutil.copyfile,
         Action.MOVE: shutil.move,
-        Action.DELETE: lambda file, _: os.remove(dest),
+        Action.DELETE: lambda file, _: os.remove(file),
     }
 
     source_hashes = read_paths_and_hashes(source)
