@@ -8,10 +8,25 @@ Licence,
 import hashlib
 import os
 import shutil
+from enum import (
+    Enum,
+    auto,
+)
 from pathlib import Path
-from typing import Dict
+from typing import (
+    Dict,
+    Tuple,
+)
 
 BLOCKSIZE = 65536
+
+
+class Action(Enum):
+    """Actions available."""
+
+    COPY: int = auto()
+    MOVE: int = auto()
+    DELETE: int = auto()
 
 
 def hash_file(path: Path) -> str:
@@ -46,6 +61,49 @@ def read_paths_and_hashes(root: Path) -> Dict[str, str]:
         for file in files:
             hashes[hash_file(Path(folder) / file)] = file
     return hashes
+
+
+def determine_actions(
+    source_hashes: Dict[str, str],
+    dest_hashes: Dict[str, str],
+    source_folder: Path,
+    dest_folder: Path,
+) -> Tuple[str, Path, Path]:
+    """Yield the set of file system actions according to synchronizing logic.
+
+    The synchronizing logic has three possible actions:
+
+        1. If a file exists in the source but not in the destination, copy the
+         file over.
+        2. If a file exists in the source, but it has a different name than in
+         the destination, rename the destination file to match.
+        3. If a file exists in the destination but not in the source, remove
+         it.
+
+    Args:
+        source_hashes: Source directory file hash mapping.
+        dest_hashes: Destination directory file hash mapping.
+        source_folder: Source root directory.
+        dest_folder: Destination root directory.
+
+    Returns:
+        action: a tuple representing the action to take.
+    """
+    for sha, filename in source_hashes.items():
+
+        if sha not in dest_hashes:
+            source_path = Path(source_folder) / filename
+            dest_path = Path(dest_folder) / filename
+            yield Action.COPY, source_path, dest_path
+
+        elif dest_hashes[sha] != filename:
+            old_path = Path(dest_folder) / dest_hashes[sha]
+            new_path = Path(dest_folder) / filename
+            yield Action.MOVE, old_path, new_path
+
+    for sha, filename in dest_hashes.items():
+        if sha not in source_hashes:
+            yield Action.DELETE, dest_folder / filename
 
 
 def sync(source: Path, dest: Path) -> None:
