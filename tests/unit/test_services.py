@@ -7,12 +7,13 @@ Licence,
 """
 import pytest
 
-import corelib.allocation.service_layer.services as services
 from corelib.allocation.adapters.repository import InMemoryRepository
 from corelib.allocation.domain.model import (
     Batch,
     OrderLine,
 )
+from corelib.allocation.service_layer.services import allocate
+from corelib.exceptions import InvalidSku
 
 
 class FakeSession:
@@ -31,7 +32,7 @@ def test_returns_allocation():
     batch = Batch("b1", "COMPLICATED-LAMP", 100, eta=None)
     repo = InMemoryRepository([batch])
 
-    result = services.allocate(line, repo, FakeSession())
+    result = allocate(line, repo, FakeSession())
 
     assert result == "b1"
 
@@ -42,10 +43,8 @@ def test_error_for_invalid_sku():
     batch = Batch("b1", "AREALSKU", 100, eta=None)
     repo = InMemoryRepository([batch])
 
-    with pytest.raises(
-        services.InvalidSku, match="Invalid sku NONEXISTENTSKU"
-    ):
-        services.allocate(line, repo, FakeSession())
+    with pytest.raises(InvalidSku, match="Invalid sku NONEXISTENTSKU"):
+        allocate(line, repo, FakeSession())
 
 
 def test_commits():
@@ -55,5 +54,5 @@ def test_commits():
     repo = InMemoryRepository([batch])
     session = FakeSession()
 
-    services.allocate(line, repo, session)
+    allocate(line, repo, session)
     assert session.committed is True
