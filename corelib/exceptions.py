@@ -11,3 +11,9 @@ class OutOfStock(Exception):
     """Exception to express that there is no batch to allocate line."""
 
     pass
+
+
+class InvalidSku(Exception):
+    """Exception to express that SKU from an order line is invalid."""
+
+    pass

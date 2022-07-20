@@ -10,4 +10,4 @@ from corelib import __version__
 
 def test_semantic_version():
     """Test semantic version update."""
-    assert __version__ == "0.4.1"
+    assert __version__ == "0.5.0"
