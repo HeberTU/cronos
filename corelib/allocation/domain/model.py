@@ -125,6 +125,10 @@ class Batch:
             return False
         return other.reference == self.reference
 
+    def __hash__(self):
+        """Batches are uniquely identified by their ref."""
+        return hash(self.reference)
+
 
 def allocate(line: OrderLine, batches: List[Batch]) -> str:
     """Allocate order line to the earliest Batch.
