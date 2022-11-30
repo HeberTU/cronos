@@ -9,9 +9,12 @@ import os
 from pathlib import Path
 from typing import Tuple
 
+import pytest
+
 from corelib.syncsys.sync import hash_file
 
 
+@pytest.mark.unit
 def test_hash_file(files: Tuple[Path, Path, Path]):
     """Test if that hashed object has unique representation."""
     try:

@@ -26,6 +26,7 @@ class FakeSession:
         self.committed = True
 
 
+@pytest.mark.unit
 def test_returns_allocation():
     """Test allocation success."""
     line = OrderLine("o1", "COMPLICATED-LAMP", 10)
@@ -37,6 +38,7 @@ def test_returns_allocation():
     assert result == "b1"
 
 
+@pytest.mark.unit
 def test_error_for_invalid_sku():
     """Test the rght exception raises for invalid SKU."""
     line = OrderLine("o1", "NONEXISTENTSKU", 10)
@@ -47,6 +49,7 @@ def test_error_for_invalid_sku():
         allocate(line, repo, FakeSession())
 
 
+@pytest.mark.unit
 def test_commits():
     """Test that data was persisted."""
     line = OrderLine("o1", "OMINOUS-MIRROR", 10)
