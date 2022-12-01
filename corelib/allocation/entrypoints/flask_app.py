@@ -27,7 +27,7 @@ app = Flask(__name__)
 def allocate_endpoint():
     """Allocate order line to database batches."""
     session = get_session()
-    repo = repository.SqlAlchemyRepository(session)
+    repo = repository.SQLAlchemyRepository(session)
     line = model.OrderLine(
         request.json["orderid"],
         request.json["sku"],

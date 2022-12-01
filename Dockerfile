@@ -1,15 +1,12 @@
-FROM python:3.9-slim-buster
+FROM python:3.8
 
 RUN pip3 install poetry
 RUN poetry config virtualenvs.create false
 
 RUN mkdir -p /cronos
-
-
-RUN mkdir -p /cronos/corelib
-RUN mkdir -p /cronos/tests
-
-COPY corelib /cronos/corelib
-COPY tests /cronos/tests
-
 WORKDIR /cronos
+
+COPY pyproject.toml .
+RUN poetry install
+
+COPY . .
