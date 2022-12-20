@@ -42,7 +42,7 @@ class Batch:
 
         Args:
             ref: Reference number to track the batch.
-            sku: Prodict identifier.
+            sku: Product identifier.
             qty: Purchased quantity.
             eta: Estimated time of arrival.
         """
@@ -55,9 +55,9 @@ class Batch:
     def allocate(self, line: OrderLine):
         """Allocate customer order line to order batch.
 
-         The order line quantity only gets alloctated to batch if order
+         The order line quantity only gets allocated to batch if order
          quantity is less or equal than batch available quantity and the SKUs
-         matche.
+         matched.
 
         Args:
             line: Customer order line.
@@ -71,7 +71,7 @@ class Batch:
     def deallocate(self, line: OrderLine):
         """Deallocate customer order line to order batch.
 
-         The order line only ggets deallocated if it as previously allocated
+         The order line only gets deallocated if it as previously allocated
          to the batch.
 
         Args:
@@ -100,7 +100,7 @@ class Batch:
         and its quantity <= batch available quantity.
 
         Args:
-            line:
+            line: Customer order line.
 
         Returns:
             True if customer order line can be allocated to batch.
