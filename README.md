@@ -7,6 +7,7 @@ cronos
 - Authors: 
   - Heber Trujillo <heber.trj.urt@gmail.com>
   - Montserrat Navarro <montserrat.nvro.lpz@gmail.com> 
+  - Juan José Nieto <juanjo.3ns@gmail.com>
 - Date of last README.md update: 20.06.2022
 
 ## Project Overview
