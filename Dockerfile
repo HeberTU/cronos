@@ -10,3 +10,5 @@ COPY pyproject.toml .
 RUN poetry install
 
 COPY . .
+
+ENTRYPOINT ["tail", "-f", "/dev/null"]
